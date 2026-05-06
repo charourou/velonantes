@@ -1,0 +1,21 @@
+data/*.csv
+data/*.xlsx
+data/*.json
+
+# === Environnement Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# === Jupyter Notebooks ===
+.ipynb_checkpoints/
+
+# === Fichiers OS ===
+.DS_Store
+Thumbs.db
+
+*.pdf
+*.txt
