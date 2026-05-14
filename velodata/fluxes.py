@@ -4,6 +4,9 @@ import warnings
 from velodata.data import VeloData
 
 
+warnings.filterwarnings('ignore', category=pd.errors.SettingWithCopyWarning)
+
+
 class Flux:
     '''
     DataFrames containing all bicyles frequencies at different spot in Nantes.
@@ -18,7 +21,7 @@ class Flux:
         self.api = VeloData()
         self.data = self.api.get_data()
 
-    def pick_station(self, comptage_cible = '786 - 50 Otages Vers Nord'):
+    def pick_station(self, station_name = '786 - 50 Otages Vers Nord'):
         """
         Performs a selection on the self.data
         by the Boucle de comptage.
@@ -26,7 +29,13 @@ class Flux:
 
         returns the dataframe filtered accordingly
         """
-        pass
+        column_name = 'Boucle de comptage'
+
+        df_filtered = self.data[self.data[column_name] == station_name].copy()
+
+
+        print(f"Station sélectionnée : {station_name} ({len(df_filtered)} jours trouvés).")
+        return df_filtered
 
 
     def horodate(self):
@@ -36,6 +45,8 @@ class Flux:
         """
         # df['date'] = pd.to_datetime(df['Horodate'], utc=True)   # Conversion en format temporel
         # df = df.set_index('date')                               # On met la date en index (axe X)
+
+
 
         pass
 
