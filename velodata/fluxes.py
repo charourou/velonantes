@@ -38,17 +38,22 @@ class Flux:
         return df_filtered
 
 
-    def horodate(self):
+    def horodate(self, df_input):
         """
         Get the necessary time and date information
         to make a unique day index.
         """
-        # df['date'] = pd.to_datetime(df['Horodate'], utc=True)   # Conversion en format temporel
-        # df = df.set_index('date')                               # On met la date en index (axe X)
+
+        df = df_input.copy()
 
 
+        # infer_datetime_format=True accélère grandement le processus
 
-        pass
+
+        df['datetime_index'] = pd.to_datetime(df['Date formatée'], utc=True, errors='coerce')
+        df = df.set_index('datetime_index').sort_index()
+        df = df.drop(columns = 'Date formatée')
+
 
     def review_quality(self):
         """
