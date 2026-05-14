@@ -45,14 +45,20 @@ class Flux:
         """
 
         df = df_input.copy()
-
-
         # infer_datetime_format=True accélère grandement le processus
-
-
         df['datetime_index'] = pd.to_datetime(df['Date formatée'], utc=True, errors='coerce')
         df = df.set_index('datetime_index').sort_index()
-        df = df.drop(columns = 'Date formatée')
+
+
+        return df.drop(columns = 'Date formatée')
+
+    def drop_hours(self, df_input):
+        hours_col = ['0'+str(i) for i in range(10)] + [str(i) for i in range(10,24)]
+        manual_sum = df_input.loc[:,hours_col].sum(axis = 1)
+
+        # print(manual_sum)
+        return df_input.drop(columns = hours_col)
+
 
 
     def review_quality(self):
@@ -64,4 +70,23 @@ class Flux:
 
 
         """
-        pass
+
+
+        df = df_input.copy()
+        initial_nans = df[target_col].isna().sum()
+
+        # 1. Mise à NaN des valeurs physiquement impossibles (fusion des conditions)
+        mask_aberrant = (df[target_col] < 0) | (df[target_col] > max_threshold)
+        df.loc[mask_aberrant, target_col] = np.nan
+
+        # 2. Interpolation temporelle pour combler les "trous" (NaNs)
+        # Ne fonctionne correctement que si l'index est un DatetimeIndex trié
+        df[target_col] = df[target_col].interpolate(method='time')
+
+        # 3. Drop des NaNs résiduels (ex: si le tout premier jour est NaN, on ne peut pas interpoler avant)
+        df = df.dropna(subset=[target_col])
+
+        nans_fixed = initial_nans + mask_aberrant.sum() - df[target_col].isna().sum()
+        print(f"Qualité : {nans_fixed} valeurs aberrantes/manquantes ont été corrigées par interpolation.")
+
+        return df
